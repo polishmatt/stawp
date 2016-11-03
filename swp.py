@@ -2,11 +2,10 @@
 
 import sys
 import os
-from os import listdir, remove, mkdir, rename
+from os import listdir, remove, mkdir
 from os.path import isdir, join
 import shutil
 import yaml
-from PIL import Image
 import copy
 import imp
 from distutils.dir_util import copy_tree
@@ -171,25 +170,12 @@ for page in pages:
     output = template
 
     for module in modules:
-        module.render_page(page=page, config=config)
+        module.render_page(page=page, config=config, newPath=newPath)
+
     if 'description' in page:
         page['description'] = ' ' + page['description']
     else:
         page['description'] = ''
-
-    if 'isGallery' in page:
-        for imageFile in page['images']:
-            if isinstance(imageFile, dict):
-                imageFile = list(imageFile.keys())[0]
-            file = join(newPath, imageFile)
-            outName = 'matt-wisniewski-' + page['dirName'] + '-'+ imageFile
-            try:
-                image = Image.open(file)
-                image.thumbnail((500, 200), Image.ANTIALIAS)
-                image.save(join(newPath, 'thumb-' + outName), "JPEG")
-                rename(file, join(newPath, outName))
-            except:
-                print("Failed thumbnail %s: %s" % (file, sys.exc_info()[0]))
 
     page['pagePath'] = page['path']
     for key in page:

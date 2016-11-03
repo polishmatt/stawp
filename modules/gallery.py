@@ -177,9 +177,23 @@ class Module(module.Module):
             page['pageTitle'] = ''
             page['categoryTitle'] = ''
 
-    def render_page(self, page, config):
+    def render_page(self, page, config, newPath):
         if self.rendered_gallery is None:
             self.rendered_gallery = ''.join(self.rendered_galleries[page] for page in config['bottomMenuPages'])
 
         page['body'] = page['body'].replace('{{gallery}}', self.rendered_gallery)
+
+        if 'isGallery' in page:
+            for imageFile in page['images']:
+                if isinstance(imageFile, dict):
+                    imageFile = list(imageFile.keys())[0]
+                file = os.path.join(newPath, imageFile)
+                outName = 'matt-wisniewski-' + page['dirName'] + '-'+ imageFile
+                try:
+                    image = Image.open(file)
+                    image.thumbnail((500, 200), Image.ANTIALIAS)
+                    image.save(os.path.join(newPath, 'thumb-' + outName), "JPEG")
+                    os.rename(file, os.path.join(newPath, outName))
+                except:
+                    print("Failed thumbnail %s: %s" % (file, sys.exc_info()[0]))
 
