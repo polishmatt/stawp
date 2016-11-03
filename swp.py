@@ -7,7 +7,6 @@ from os.path import isdir, isfile, join
 import shutil
 import yaml
 from PIL import Image
-import htmlmin
 import copy
 from distutils.dir_util import copy_tree
 
