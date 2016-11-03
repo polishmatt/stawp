@@ -11,9 +11,6 @@ import copy
 import imp
 from distutils.dir_util import copy_tree
 
-module_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'modules')
-module = imp.load_source('swp_module_gallery', os.path.join(module_path, 'gallery.py'))
-
 dist = sys.argv[2]
 if dist is None or dist == "":
     sys.exit(0)
@@ -41,7 +38,14 @@ config['js'] = 1
 config['bottomMenu'] = config['menu'][1]
 config['topMenu'] = config['menu'][0]
 
-module.__init__(base_path=base, config=config)
+modules = []
+modules_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'modules')
+for module_file in listdir(modules_path):
+    module_path = os.path.join(modules_path, module_file)
+    if os.path.isfile(module_path):
+        module = imp.load_source('swp_module_' + module_file, module_path)
+        module = module.Module(base_path=base, config=config)
+        modules.append(module)
 
 topMenu = {}
 bottomMenu = {}
@@ -103,7 +107,8 @@ while dirs:
             page['header'] = ''
             page['categoryTitle'] = ''
 
-            module.interpret_config(page, config, sourcePath, source, fileName, default, configPage, children, parents, index, bodyhtml)
+            for module in modules:
+                module.interpret_config(page, config, sourcePath, source, fileName, default, configPage, children, parents, index, bodyhtml)
 
             for child in children:
                 parents[child] = page
@@ -165,7 +170,8 @@ for page in pages:
         pass
     output = template
 
-    module.render_page(page=page, config=config)
+    for module in modules:
+        module.render_page(page=page, config=config)
     if 'description' in page:
         page['description'] = ' ' + page['description']
     else:
