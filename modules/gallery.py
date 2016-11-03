@@ -15,16 +15,16 @@ class Module(module.Module):
     discover = True
     clear = True
 
-    def __init__(self, base_path, config):
+    def __init__(self, base_path, site):
         for template in ['category', 'gallery', 'image']:
             file = open('%s/html/gallery/%s.html' % (base_path, template), 'r')
             self.templates[template] = file.read()
             file.close()
 
-        for page in config['bottomMenu']:
+        for page in site['bottomMenu']:
             self.rendered_galleries[page] = None
 
-    def interpret_config(self, page, config, source_path, source, file_name, default, configPage, children, parents, index, bodyhtml):
+    def interpret_config(self, page, site, source_path, source, file_name, default, configPage, children, parents, index, bodyhtml):
         if 'images' in page:
             changed = False
             if self.discover:
@@ -96,7 +96,7 @@ class Module(module.Module):
                             alt = page['pageTitle'] + ' - ' + attitle
                             icfg = {
                                 'href': 'https://'+image,
-                                'src': config['path']+file_name[2:]+'/'+path,
+                                'src': site['path']+file_name[2:]+'/'+path,
                                 'alt': alt,
                                 'title': attitle,
                             }
@@ -112,8 +112,8 @@ class Module(module.Module):
                             attitle = cfg['title']
                             alt = page['pageTitle'] + ' - ' + attitle
                             icfg = {
-                                'href': config['path']+categoryPath,
-                                'src': config['path']+categoryPath+'thumb-'+outPrefix+image,
+                                'href': site['path']+categoryPath,
+                                'src': site['path']+categoryPath+'thumb-'+outPrefix+image,
                                 'alt': alt,
                                 'title': attitle,
                             }
@@ -168,7 +168,7 @@ class Module(module.Module):
             
             body = body.replace('{{images}}', imageHTML)
             page['body'] = body
-            if 'isCategory' in page and page['isCategory'] and configPage in config['bottomMenu']:
+            if 'isCategory' in page and page['isCategory'] and configPage in site['bottomMenu']:
                 self.rendered_galleries[configPage] = page['body']
             else:
                 if page['categoryTitle'] != '':
@@ -177,9 +177,9 @@ class Module(module.Module):
             page['pageTitle'] = ''
             page['categoryTitle'] = ''
 
-    def render_page(self, page, config, newPath):
+    def render_page(self, page, site, newPath):
         if self.rendered_gallery is None:
-            self.rendered_gallery = ''.join(self.rendered_galleries[page] for page in config['bottomMenuPages'])
+            self.rendered_gallery = ''.join(self.rendered_galleries[page] for page in site['bottomMenuPages'])
 
         page['body'] = page['body'].replace('{{gallery}}', self.rendered_gallery)
 

@@ -43,18 +43,11 @@ for module_file in listdir(modules_path):
     module_path = os.path.join(modules_path, module_file)
     if os.path.isfile(module_path):
         module = imp.load_source('swp_module_' + module_file, module_path)
-        module = module.Module(base_path=base, config=config)
+        module = module.Module(base_path=base, site=config)
         modules.append(module)
 
 topMenu = {}
 bottomMenu = {}
-sitemap = [{
-    'url': '',
-  'priority': '1.0',
-}, {
-    'url': 'images/',
-    'priority': '0.8',
-}]
 
 while dirs:
     nextDirs = []
@@ -80,10 +73,6 @@ while dirs:
                 page['body'] = ''
 
             page['file'] = fileName
-            mapurl = {
-                'url': 'images/'+fileName[2:] + '/',
-                'priority': '0.5',
-            }
             dirName = fileName.split('/')
             page['dirName'] = dirName[len(dirName)-1]
             page['path'] = config['path'] + fileName[2:]
@@ -112,11 +101,6 @@ while dirs:
             for child in children:
                 parents[child] = page
             pages.append(page)
-
-            if fileName.count('/') == 1:
-                mapurl['priority'] = '0.7'
-            if mapurl['url'] != 'images//' and mapurl['url'] != 'images/not-found/' and mapurl['url'] != 'images/removed/':
-                sitemap.append(mapurl)
 
     dirs = nextDirs
 
@@ -149,17 +133,8 @@ config['menu[1]'] = config['bottomMenu']
 for key in config:
     template = template.replace('{{%s}}' % key, str(config[key]))
 
-site = '<?xml version="1.0" encoding="UTF-8"?>'+"\n"
-site += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+"\n"
-for url in sitemap:
-    site += "\t<url>\n"
-    site += "\t\t<loc>"+config['url']+url['url']+"</loc>\n"
-    site += "\t\t<priority>"+url['priority']+"</priority>\n"
-    site += "\t</url>\n"
-site += '</urlset>'
-file = open(dist + '/../sitemap.xml', 'w')
-file.write(site)
-file.close()
+for module in modules:
+    module.render(site=config, dist=dist)
 
 for page in pages:
     newPath = join(dist, page['file'])
@@ -170,7 +145,7 @@ for page in pages:
     output = template
 
     for module in modules:
-        module.render_page(page=page, config=config, newPath=newPath)
+        module.render_page(page=page, site=config, newPath=newPath)
 
     if 'description' in page:
         page['description'] = ' ' + page['description']
