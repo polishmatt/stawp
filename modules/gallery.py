@@ -21,6 +21,7 @@ class Module(module.Module):
             self.templates[template] = file.read()
             file.close()
 
+        site['bottomMenu'] = site['menu'][1]
         for page in site['bottomMenu']:
             self.rendered_galleries[page] = None
 
@@ -179,7 +180,7 @@ class Module(module.Module):
 
     def render_page(self, page, site, newPath):
         if self.rendered_gallery is None:
-            self.rendered_gallery = ''.join(self.rendered_galleries[page] for page in site['bottomMenuPages'])
+            self.rendered_gallery = ''.join(self.rendered_galleries[page] for page in site['bottomMenu'])
 
         page['body'] = page['body'].replace('{{gallery}}', self.rendered_gallery)
 

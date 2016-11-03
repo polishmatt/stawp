@@ -9,6 +9,6 @@ class Module:
     def render_page(self, page, site, newPath):
         pass
 
-    def render(self, site, dist):
+    def render(self, site, dist, base):
         pass
 

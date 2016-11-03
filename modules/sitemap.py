@@ -24,7 +24,7 @@ class Module(module.Module):
         if mapurl['url'] != 'images//' and mapurl['url'] != 'images/not-found/' and mapurl['url'] != 'images/removed/':
             self.sitemap.append(mapurl)
 
-    def render(self, site, dist):
+    def render(self, site, dist, base):
         sitemap = '<?xml version="1.0" encoding="UTF-8"?>'+"\n"
         sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+"\n"
         for url in self.sitemap:

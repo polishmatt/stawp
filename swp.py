@@ -34,8 +34,6 @@ topLevel = []
 parents = {}
 config['css'] = 1
 config['js'] = 1
-config['bottomMenu'] = config['menu'][1]
-config['topMenu'] = config['menu'][0]
 
 modules = []
 modules_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'modules')
@@ -45,9 +43,6 @@ for module_file in listdir(modules_path):
         module = imp.load_source('swp_module_' + module_file, module_path)
         module = module.Module(base_path=base, site=config)
         modules.append(module)
-
-topMenu = {}
-bottomMenu = {}
 
 while dirs:
     nextDirs = []
@@ -83,14 +78,7 @@ while dirs:
             if fileName == '.' or fileName.rfind('/') == 1:
                 topLevel.append(page)
 
-            if 'menuTitle' not in page:
-                page['menuTitle'] = page['title']
-
             configPage = page['file'][1:] + '/'
-            if configPage in config['bottomMenu']:
-                bottomMenu[configPage] = page
-            elif configPage in config['topMenu']:
-                topMenu[configPage] = page
 
             page['header'] = ''
             page['categoryTitle'] = ''
@@ -107,34 +95,12 @@ while dirs:
 file = open(base+'/html/index.html', 'r')
 template = file.read()
 file.close()
-file = open(base+'/html/menu.html', 'r')
-menu = file.read()
-file.close()
 
-config['topMenuPages'] = config['topMenu']
-config['bottomMenuPages'] = config['bottomMenu']
-config['topMenu'] = ''
-config['bottomMenu'] = ''
-for file in config['topMenuPages']:
-    page = topMenu[file]
-    pageHTML = menu
-    for key in page:
-        pageHTML = pageHTML.replace('{{%s}}' % key, str(page[key]))
-    config['topMenu'] += pageHTML
-for file in config['bottomMenuPages']:
-    page = bottomMenu[file]
-    pageHTML = menu
-    for key in page:
-        pageHTML = pageHTML.replace('{{%s}}' % key, str(page[key]))
-    config['bottomMenu'] += pageHTML
-config['menu[0]'] = config['topMenu']
-config['menu[1]'] = config['bottomMenu']    
+for module in modules:
+    module.render(site=config, dist=dist, base=base)
 
 for key in config:
     template = template.replace('{{%s}}' % key, str(config[key]))
-
-for module in modules:
-    module.render(site=config, dist=dist)
 
 for page in pages:
     newPath = join(dist, page['file'])
