@@ -4,7 +4,7 @@ import module
 class Module(module.Module):
     sitemap = []
     
-    def __init__(self, base_path):
+    def __init__(self, builder):
         sitemap =[{
             'url': '',
           'priority': '1.0',
@@ -13,7 +13,7 @@ class Module(module.Module):
             'priority': '0.8',
         }]
 
-    def interpret_config(self, page, site, source_path, source, file_name, default, configPage, children, parents, index, bodyhtml):
+    def interpret(self, page, builder, source_path, file_name, default, configPage, children, parents, index, bodyhtml):
         mapurl = {
             'url': 'images/' + file_name[2:] + '/',
             'priority': '0.5',
@@ -24,16 +24,16 @@ class Module(module.Module):
         if mapurl['url'] != 'images//' and mapurl['url'] != 'images/not-found/' and mapurl['url'] != 'images/removed/':
             self.sitemap.append(mapurl)
 
-    def render(self, site, dist, base):
+    def render(self, builder):
         sitemap = '<?xml version="1.0" encoding="UTF-8"?>'+"\n"
         sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+"\n"
         for url in self.sitemap:
             sitemap += "\t<url>\n"
-            sitemap += "\t\t<loc>"+site['url']+url['url']+"</loc>\n"
+            sitemap += "\t\t<loc>"+builder.config['url']+url['url']+"</loc>\n"
             sitemap += "\t\t<priority>"+url['priority']+"</priority>\n"
             sitemap += "\t</url>\n"
         sitemap += '</urlset>'
-        file = open(dist + '/../sitemap.xml', 'w')
+        file = open(builder.dist + '/../sitemap.xml', 'w')
         file.write(sitemap)
         file.close()
 

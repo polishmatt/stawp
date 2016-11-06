@@ -1,14 +1,14 @@
 
 class Module:
-    def __init__(self):
+    def __init__(self, builder):
         pass
 
-    def interpret_config(self):
+    def interpret(self):
         pass
 
-    def render_page(self, page, site, newPath):
+    def render_page(self, page, builder, newPath):
         pass
 
-    def render(self, site, dist, base):
+    def render(self, builder):
         pass
 

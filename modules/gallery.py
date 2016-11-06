@@ -16,17 +16,17 @@ class Module(module.Module):
     discover = True
     clear = True
 
-    def __init__(self, base_path):
+    def __init__(self, builder):
         for template in ['category', 'gallery', 'image']:
-            file = open('%s/html/gallery/%s.html' % (base_path, template), 'r')
+            file = open('%s/html/gallery/%s.html' % (builder.base, template), 'r')
             self.templates[template] = file.read()
             file.close()
 
-    def interpret_config(self, page, site, source_path, source, file_name, default, configPage, children, parents, index, bodyhtml):
-        site['bottomMenu'] = site['menu'][1]
+    def interpret(self, page, builder, source_path, file_name, default, configPage, children, parents, index, bodyhtml):
+        builder.config['bottomMenu'] = builder.config['menu'][1]
         if self.rendered_galleries is None:
             self.rendered_galleries = {}
-            for page_name in site['bottomMenu']:
+            for page_name in builder.config['bottomMenu']:
                 self.rendered_galleries[page_name] = ''
 
         if 'images' in page:
@@ -34,7 +34,7 @@ class Module(module.Module):
             if self.discover:
                 for child in children:
                     try:
-                        Image.open(os.path.join(source, child))
+                        Image.open(os.path.join(builder.src, child))
                         child = child.split('/')
                         child = child[len(child)-1]
                         dupe = False
@@ -102,7 +102,7 @@ class Module(module.Module):
                             alt = page['pageTitle'] + ' - ' + attitle
                             icfg = {
                                 'href': 'https://'+image,
-                                'src': site['path']+file_name[2:]+'/'+path,
+                                'src': builder.config['path']+file_name[2:]+'/'+path,
                                 'alt': alt,
                                 'title': attitle,
                             }
@@ -111,15 +111,15 @@ class Module(module.Module):
                                 ichtml = ichtml.replace('{{%s}}' % key, icfg[key])
                             imageHTML += ichtml
                         else:
-                            file = open(source+'/' + categoryPath+'index.yaml', 'r')
+                            file = open(builder.src+'/' + categoryPath+'index.yaml', 'r')
                             cfg = file.read()
                             file.close()
                             cfg = yaml.load(cfg)
                             attitle = cfg['title']
                             alt = page['pageTitle'] + ' - ' + attitle
                             icfg = {
-                                'href': site['path']+categoryPath,
-                                'src': site['path']+categoryPath+'thumb-'+outPrefix+image,
+                                'href': builder.config['path']+categoryPath,
+                                'src': builder.config['path']+categoryPath+'thumb-'+outPrefix+image,
                                 'alt': alt,
                                 'title': attitle,
                             }
@@ -174,7 +174,7 @@ class Module(module.Module):
             
             body = body.replace('{{images}}', imageHTML)
             page['body'] = body
-            if 'isCategory' in page and page['isCategory'] and configPage in site['bottomMenu']:
+            if 'isCategory' in page and page['isCategory'] and configPage in builder.config['bottomMenu']:
                 self.rendered_galleries[configPage] = page['body']
             else:
                 if page['categoryTitle'] != '':
@@ -183,9 +183,9 @@ class Module(module.Module):
             page['pageTitle'] = ''
             page['categoryTitle'] = ''
 
-    def render_page(self, page, site, newPath):
+    def render_page(self, page, builder, newPath):
         if self.rendered_gallery is None:
-            self.rendered_gallery = ''.join(self.rendered_galleries[path] for path in site['bottomMenu'])
+            self.rendered_gallery = ''.join(self.rendered_galleries[path] for path in builder.config['bottomMenu'])
 
         page['body'] = page['body'].replace('{{gallery}}', self.rendered_gallery)
 

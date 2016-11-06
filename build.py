@@ -30,7 +30,7 @@ class Builder:
             module_path = os.path.join(modules_path, module_file)
             if os.path.isfile(module_path):
                 module = imp.load_source('swp_module_' + module_file, module_path)
-                module = module.Module(base_path=base)
+                module = module.Module(self)
                 self.modules.append(module)
 
     def read_template(self, path=None, name='index'):
@@ -99,7 +99,7 @@ class Builder:
                     page['categoryTitle'] = ''
 
                     for module in self.modules:
-                        module.interpret_config(page, self.config, sourcePath, self.src, fileName, default, configPage, children, parents, index, body_template)
+                        module.interpret(page, self, sourcePath, fileName, default, configPage, children, parents, index, body_template)
 
                     for child in children:
                         parents[child] = page
@@ -111,7 +111,7 @@ class Builder:
         template = self.read_template()
 
         for module in self.modules:
-            module.render(site=self.config, dist=self.dist, base=self.base)
+            module.render(self)
 
         for key in self.config:
             template = template.replace('{{%s}}' % key, str(self.config[key]))
@@ -125,7 +125,7 @@ class Builder:
             output = template
 
             for module in self.modules:
-                module.render_page(page=page, site=self.config, newPath=newPath)
+                module.render_page(page=page, builder=self, newPath=newPath)
 
             if 'description' in page:
                 page['description'] = ' ' + page['description']
