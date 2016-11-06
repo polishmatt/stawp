@@ -8,6 +8,11 @@ import config
 @click.argument('dest')
 @click.version_option(version=config.VERSION)
 @click.option(
+    '--verbose/-v',
+    is_flag=True,
+    default=False
+)
+@click.option(
     '--discover-images/--no-discover-images', 
     default=True, 
     help='add images to a page\'s config if they are not already present'

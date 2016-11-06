@@ -2,9 +2,8 @@
 import os
 import sys
 import yaml
-import module
-import click
 from PIL import Image
+import module
 
 class Module(module.Module):
 
@@ -166,7 +165,7 @@ class Module(module.Module):
                             })
                         page.config['isGallery'] = True
                     else:
-                        click.echo('Removed ' + os.path.join(page.full_path, image))
+                        builder.echo('Removed ' + os.path.join(page.full_path, image))
                         page.raw_config['images'].remove(ori)
                         changed = True
 
@@ -214,5 +213,5 @@ class Module(module.Module):
                 except KeyboardInterrupt:
                     raise
                 except:
-                    click.echo("Failed thumbnail %s: %s" % (file, sys.exc_info()[0]))
+                    builder.echo("Failed thumbnail %s: %s" % (file, sys.exc_info()[0]), error=True)
 

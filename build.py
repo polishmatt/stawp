@@ -2,6 +2,7 @@
 import os
 import yaml
 import imp
+import click
 import distutils.dir_util
 import page_container
 
@@ -68,7 +69,12 @@ class Builder:
             template = template.replace('{{%s}}' % key, str(value))
         return template
 
+    def echo(self, message, verbose=False, error=False):
+        if not verbose or self.options['verbose']:
+            click.echo(message, err=error)
+
     def interpret(self):
+        self.echo('interpreting config...', verbose=True)
         self.config = self.read_config(self.base, 'config')
         if self.config is None:
             self.config = {}
@@ -111,6 +117,7 @@ class Builder:
             dirs = next_dirs
 
     def render(self):
+        self.echo('rendering templates...', verbose=True)
         template = self.read_template()
 
         for module in self.modules:
@@ -131,4 +138,5 @@ class Builder:
             file = open(os.path.join(page.dist_path, 'index.html'), 'w')
             file.write(output)
             file.close()
+        self.echo('done', verbose=True)
 
