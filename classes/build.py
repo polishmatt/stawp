@@ -70,7 +70,7 @@ class Builder:
         return template
 
     def echo(self, message, verbose=False, error=False):
-        if not verbose or self.options['verbose']:
+        if not verbose or self.options.get('verbose', False):
             click.echo(message, err=error)
 
     def interpret(self):
