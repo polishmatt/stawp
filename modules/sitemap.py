@@ -1,36 +1,45 @@
 
+import collections
 import classes.module
 
 class Module(classes.module.Module):
-    sitemap = []
+
+    sitemap = None
     
-    def __init__(self, builder):
-        sitemap =[{
-            'url': '',
-          'priority': '1.0',
-        }, {
-            'url': 'images/',
-            'priority': '0.8',
-        }]
-
     def interpret(self, page, builder):
-        mapurl = {
-            'url': 'images/' + page.src_path[2:] + '/',
-            'priority': '0.5',
-        }
-        if page.src_path.count('/') == 1:
-            mapurl['priority'] = '0.7'
+        if self.sitemap == None:
+            self.sitemap = collections.OrderedDict()
+            for url in builder.config.get('sitemap_overrides', []):
+                if url['loc'] is None:
+                    url['loc'] = '/'
+                self.sitemap[url['loc']] = url
 
-        if mapurl['url'] != 'images//' and mapurl['url'] != 'images/not-found/' and mapurl['url'] != 'images/removed/':
-            self.sitemap.append(mapurl)
+        sitemap_path = page.src_path[2:]
+        if len(sitemap_path) > 0:
+            sitemap_path += '/'
+        if page.src_path.count('/') == 1:
+            priority = builder.config.get('sitemap_priority_toplevel', '0.7')
+        else:
+            priority = builder.config.get('sitemap_priority_default', '0.5')
+        url = {
+            'loc': builder.config.get('path', '/') + sitemap_path,
+            'priority': priority,
+        }
+        
+        if url['loc'] not in self.sitemap and url['loc'] not in builder.config.get('sitemap_ignore', []):
+            self.sitemap[url['loc']] = url
 
     def render(self, builder):
         sitemap = '<?xml version="1.0" encoding="UTF-8"?>'+"\n"
         sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+"\n"
-        for url in self.sitemap:
+        if hasattr(self.sitemap, 'iteritems'):
+            values = self.sitemap.iteritems()
+        else:
+            values = self.sitemap.items()
+        for loc, url in values:
             sitemap += "\t<url>\n"
-            sitemap += "\t\t<loc>"+builder.config['url']+url['url']+"</loc>\n"
-            sitemap += "\t\t<priority>"+url['priority']+"</priority>\n"
+            sitemap += "\t\t<loc>"+builder.config['url']+url['loc'][1:]+"</loc>\n"
+            sitemap += "\t\t<priority>"+str(url['priority'])+"</priority>\n"
             sitemap += "\t</url>\n"
         sitemap += '</urlset>'
         file = open(builder.dist + '/../sitemap.xml', 'w')
