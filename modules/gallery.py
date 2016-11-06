@@ -1,5 +1,6 @@
 
 import os
+import sys
 import yaml
 import module
 from PIL import Image
@@ -8,24 +9,26 @@ class Module(module.Module):
 
     templates = {}
 
-    rendered_galleries = {}
+    rendered_galleries = None
     rendered_gallery = None
 
     # should be options
     discover = True
     clear = True
 
-    def __init__(self, base_path, site):
+    def __init__(self, base_path):
         for template in ['category', 'gallery', 'image']:
             file = open('%s/html/gallery/%s.html' % (base_path, template), 'r')
             self.templates[template] = file.read()
             file.close()
 
-        site['bottomMenu'] = site['menu'][1]
-        for page in site['bottomMenu']:
-            self.rendered_galleries[page] = None
-
     def interpret_config(self, page, site, source_path, source, file_name, default, configPage, children, parents, index, bodyhtml):
+        site['bottomMenu'] = site['menu'][1]
+        if self.rendered_galleries is None:
+            self.rendered_galleries = {}
+            for page_name in site['bottomMenu']:
+                self.rendered_galleries[page_name] = ''
+
         if 'images' in page:
             changed = False
             if self.discover:
@@ -180,7 +183,7 @@ class Module(module.Module):
 
     def render_page(self, page, site, newPath):
         if self.rendered_gallery is None:
-            self.rendered_gallery = ''.join(self.rendered_galleries[page] for page in site['bottomMenu'])
+            self.rendered_gallery = ''.join(self.rendered_galleries[path] for path in site['bottomMenu'])
 
         page['body'] = page['body'].replace('{{gallery}}', self.rendered_gallery)
 

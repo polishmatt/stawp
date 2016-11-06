@@ -4,7 +4,7 @@ import module
 class Module(module.Module):
     sitemap = []
     
-    def __init__(self, base_path, site):
+    def __init__(self, base_path):
         sitemap =[{
             'url': '',
           'priority': '1.0',
