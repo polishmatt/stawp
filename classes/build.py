@@ -28,13 +28,18 @@ class Builder:
         distutils.dir_util.copy_tree(self.src, self.dist)
 
         self.modules = []
+        enabled = options.get('enable_modules', '').split(',')
+        # all are disabled by default so this is just a placeholder for potential future behavior
+        disabled = options.get('disable_modules', '').split(',')
+
         modules_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'modules')
         for module_file in os.listdir(modules_path):
-            module_path = os.path.join(modules_path, module_file)
-            if os.path.isfile(module_path):
-                module = imp.load_source('swp_module_' + module_file, module_path)
-                module = module.Module(self)
-                self.modules.append(module)
+            if module_file[:-3] in enabled:
+                module_path = os.path.join(modules_path, module_file)
+                if os.path.isfile(module_path):
+                    module = imp.load_source('swp_module_' + module_file, module_path)
+                    module = module.Module(self)
+                    self.modules.append(module)
 
     def read_template(self, path=None, name='index'):
         if path is None:

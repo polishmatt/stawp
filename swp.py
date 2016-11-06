@@ -18,6 +18,14 @@ def cli():
     default=False
 )
 @click.option(
+    '--enable-modules',
+    default=''
+)
+@click.option(
+    '--disable-modules',
+    default=''
+)
+@click.option(
     '--discover-images/--no-discover-images', 
     default=True, 
     help='add images to a page\'s config if they are not already present'
