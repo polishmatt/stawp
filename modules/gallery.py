@@ -3,6 +3,7 @@ import os
 import sys
 import yaml
 import module
+import click
 from PIL import Image
 
 class Module(module.Module):
@@ -11,10 +12,6 @@ class Module(module.Module):
 
     rendered_galleries = None
     rendered_gallery = None
-
-    # should be options
-    discover = True
-    clear = True
 
     def __init__(self, builder):
         for template in ['category', 'gallery', 'image']:
@@ -31,7 +28,7 @@ class Module(module.Module):
 
         if 'images' in page:
             changed = False
-            if self.discover:
+            if builder.options['discover_images']:
                 for child in children:
                     try:
                         Image.open(os.path.join(builder.src, child))
@@ -139,7 +136,7 @@ class Module(module.Module):
                     if name.isdigit() and cat != 'collaborations':
                         title = page['title'] + ' #' + name
                 if 'isCategory' not in page:
-                    if not self.clear or os.path.isfile(os.path.join(source_path, image)) and default['images'].count(image) < 2:
+                    if not builder.options['remove_images'] or os.path.isfile(os.path.join(source_path, image)) and default['images'].count(image) < 2:
                         if parents[file_name] == index:
                             alt = ''
                         else:
@@ -167,7 +164,7 @@ class Module(module.Module):
                             page['description'] = parents[file_name]['childDescription'].replace('{{title}}', page['title'])
                         page['isGallery'] = True
                     else:
-                        print(os.path.join(source_path, image))
+                        click.echo('Removed ' + os.path.join(source_path, image))
                         default['images'].remove(ori)
                         changed = True
 
@@ -211,5 +208,5 @@ class Module(module.Module):
                 except KeyboardInterrupt:
                     raise
                 except:
-                    print("Failed thumbnail %s: %s" % (file, sys.exc_info()[0]))
+                    click.echo("Failed thumbnail %s: %s" % (file, sys.exc_info()[0]))
 

@@ -11,16 +11,18 @@ class Builder:
     base = None
     src = None
     templates = None
+    options = None
 
     config = None
     modules = None
     pages = None
 
-    def __init__(self, dist, base):
+    def __init__(self, dist, base, options):
         self.dist = dist
         self.base = base
         self.src = os.path.join(self.base, 'src')
         self.templates = os.path.join(self.base, 'html')
+        self.options = options
 
         distutils.dir_util.copy_tree(self.src, self.dist)
 
