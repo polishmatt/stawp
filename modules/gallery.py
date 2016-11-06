@@ -3,9 +3,9 @@ import os
 import sys
 import yaml
 from PIL import Image
-import module
+import classes.module
 
-class Module(module.Module):
+class Module(classes.module.Module):
 
     templates = {}
 

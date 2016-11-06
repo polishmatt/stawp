@@ -4,7 +4,7 @@ import yaml
 import imp
 import click
 import distutils.dir_util
-import page_container
+import classes.page
 
 class Builder:
 
@@ -28,7 +28,7 @@ class Builder:
         distutils.dir_util.copy_tree(self.src, self.dist)
 
         self.modules = []
-        modules_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'modules')
+        modules_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'modules')
         for module_file in os.listdir(modules_path):
             module_path = os.path.join(modules_path, module_file)
             if os.path.isfile(module_path):
@@ -91,7 +91,7 @@ class Builder:
             next_dirs = []
             for path in dirs:
                 if os.path.isdir(os.path.join(self.src, path)):
-                    page = page_container.Page(src=self.src, path=path, builder=self, parent=parents[path])
+                    page = classes.page.Page(src=self.src, path=path, builder=self, parent=parents[path])
                     next_dirs.extend(page.children)
 
                     if page.config is None:

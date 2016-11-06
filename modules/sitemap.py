@@ -1,7 +1,7 @@
 
-import module
+import classes.module
 
-class Module(module.Module):
+class Module(classes.module.Module):
     sitemap = []
     
     def __init__(self, builder):

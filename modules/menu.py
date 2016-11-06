@@ -1,7 +1,7 @@
 
-import module
+import classes.module
 
-class Module(module.Module):
+class Module(classes.module.Module):
 
     menu_pages = None
     menu_html = None

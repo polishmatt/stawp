@@ -1,8 +1,8 @@
 
 import click
 import config
-import build
-import move
+import classes.build
+import classes.move
 
 @click.group()
 @click.version_option(version=config.VERSION)
@@ -29,7 +29,7 @@ def cli():
 )
 def build(source, dest, **kwargs):
     try:
-        builder = build.Builder(dist=dest, base=source, options=kwargs)
+        builder = classes.build.Builder(dist=dest, base=source, options=kwargs)
         builder.interpret()
         builder.render()
     except KeyboardInterrupt:
@@ -39,7 +39,7 @@ def build(source, dest, **kwargs):
 @click.argument('image')
 @click.argument('to', required=False)
 def mvi(image, to):
-    mover = move.Mover(path='.')
+    mover = classes.move.Mover(path='.')
     mover.move(image=image, to=to)
 
 if __name__ == '__main__':
