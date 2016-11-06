@@ -1,12 +1,17 @@
 
 import click
-import build
 import config
+import build
+import move
 
-@click.command()
+@click.group()
+@click.version_option(version=config.VERSION)
+def cli():
+    pass
+
+@cli.command()
 @click.argument('source')
 @click.argument('dest')
-@click.version_option(version=config.VERSION)
 @click.option(
     '--verbose/-v',
     is_flag=True,
@@ -22,7 +27,7 @@ import config
     default=True, 
     help='remove images from a page\'s config if they cannot be opened'
 )
-def main(source, dest, **kwargs):
+def build(source, dest, **kwargs):
     try:
         builder = build.Builder(dist=dest, base=source, options=kwargs)
         builder.interpret()
@@ -30,6 +35,13 @@ def main(source, dest, **kwargs):
     except KeyboardInterrupt:
         click.echo('stopping...')
 
+@cli.command()
+@click.argument('image')
+@click.argument('to', required=False)
+def mvi(image, to):
+    mover = move.Mover(path='.')
+    mover.move(image=image, to=to)
+
 if __name__ == '__main__':
-    main()
+    cli()
 

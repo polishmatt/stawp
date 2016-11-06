@@ -12,7 +12,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'swp = swp:main'
+            'swp = swp:cli'
         ],
     },
 )
