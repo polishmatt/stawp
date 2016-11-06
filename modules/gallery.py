@@ -28,6 +28,8 @@ class Module(module.Module):
         else:
             builder.config['bottomMenu'] = []
 
+        page.config['categoryTitle'] = ''
+
         if 'images' in page.config:
             changed = False
             if builder.options['discover_images']:
@@ -53,7 +55,7 @@ class Module(module.Module):
             page.config['pageTitle'] = page.config['title']
             if 'image_prefix' in builder.config:
                 base_prefix = builder.config['image_prefix']
-                out_prefix = base_prefix + page.config['dirName'] + '-'
+                out_prefix = base_prefix + page.dir_name + '-'
             else:
                 base_prefix = None
                 out_prefix = ''
@@ -198,7 +200,7 @@ class Module(module.Module):
                     imageFile = list(imageFile.keys())[0]
                 file = os.path.join(page.dist_path, imageFile)
                 if 'image_prefix' in builder.config:
-                    outName = builder.config['image_prefix'] + page.config['dirName'] + '-'+ imageFile
+                    outName = builder.config['image_prefix'] + page.dir_name + '-'+ imageFile
                 else:
                     outName = imageFile
                 try:

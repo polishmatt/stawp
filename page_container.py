@@ -8,6 +8,7 @@ class Page:
     web_path = None
     full_path = None
     dist_path = None
+    dir_name = None
     is_index = False
 
     parent = None
@@ -19,6 +20,7 @@ class Page:
         self.full_path = os.path.join(src, self.src_path)
         self.web_path = os.path.join(self.src_path[1:], '')
         self.dist_path = os.path.join(builder.dist, self.src_path)
+        self.dir_name = self.src_path.split(os.sep)[-1]
         self.is_index = self.src_path == '.'
 
         self.children = [os.path.join(self.src_path, child) for child in os.listdir(self.full_path)]

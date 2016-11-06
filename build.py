@@ -71,43 +71,38 @@ class Builder:
 
         dirs = ['.']
         self.pages = []
-        topLevel = []
         parents = {
             '.': None,
         }
 
         while dirs:
-            nextDirs = []
-            for name in dirs:
-                if os.path.isdir(os.path.join(self.src, name)):
-                    page = page_container.Page(src=self.src, path=name, builder=self, parent=parents[name])
-                    nextDirs.extend(page.children)
+            next_dirs = []
+            for path in dirs:
+                if os.path.isdir(os.path.join(self.src, path)):
+                    page = page_container.Page(src=self.src, path=path, builder=self, parent=parents[path])
+                    next_dirs.extend(page.children)
 
                     if page.config is None:
                         continue
 
                     page.config['body'] = self.read_template(path=page.full_path)
-                    page.config['file'] = name
-                    dirName = name.split('/')
-                    page.config['dirName'] = dirName[len(dirName)-1]
-                    page.config['path'] = self.config['path'] + name[2:]
-
+                    page.config['pagePath'] = self.config.get('path', '') + path[2:]
                     if not page.is_index:
-                        page.config['path'] += '/'
-                    if name == '.' or name.rfind('/') == 1:
-                        topLevel.append(page)
-
-
-                    page.config['header'] = ''
-                    page.config['categoryTitle'] = ''
+                        page.config['pagePath'] += '/'
 
                     for module in self.modules:
                         module.interpret(page=page, builder=self)
+
+                    if 'description' in page.config:
+                        page.config['description'] = ' ' + page.config['description']
+                    else:
+                        page.config['description'] = ''
+
                     for child in page.children:
                         parents[child] = page
                     self.pages.append(page)
 
-            dirs = nextDirs
+            dirs = next_dirs
 
     def render(self):
         template = self.read_template()
@@ -128,12 +123,6 @@ class Builder:
             for module in self.modules:
                 module.render_page(page=page, builder=self)
 
-            if 'description' in page.config:
-                page.config['description'] = ' ' + page.config['description']
-            else:
-                page.config['description'] = ''
-
-            page.config['pagePath'] = page.config['path']
             for key in page.config:
                 output = output.replace('{{%s}}' % key, str(page.config[key]))
 
