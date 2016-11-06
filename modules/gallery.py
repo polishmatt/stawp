@@ -15,16 +15,17 @@ class Module(module.Module):
 
     def __init__(self, builder):
         for template in ['category', 'gallery', 'image']:
-            file = open('%s/html/gallery/%s.html' % (builder.base, template), 'r')
-            self.templates[template] = file.read()
-            file.close()
+            self.templates[template] = builder.read_template(name=os.path.join('gallery', template))
 
     def interpret(self, page, builder, source_path, file_name, default, configPage, children, parents, index, bodyhtml):
-        builder.config['bottomMenu'] = builder.config['menu'][1]
-        if self.rendered_galleries is None:
-            self.rendered_galleries = {}
-            for page_name in builder.config['bottomMenu']:
-                self.rendered_galleries[page_name] = ''
+        if 'menu' in builder.config:
+            builder.config['bottomMenu'] = builder.config['menu'][1]
+            if self.rendered_galleries is None:
+                self.rendered_galleries = {}
+                for page_name in builder.config['bottomMenu']:
+                    self.rendered_galleries[page_name] = ''
+        else:
+            builder.config['bottomMenu'] = []
 
         if 'images' in page:
             changed = False

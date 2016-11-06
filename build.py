@@ -17,7 +17,7 @@ class Builder:
     modules = None
     pages = None
 
-    def __init__(self, dist, base, options):
+    def __init__(self, dist, base, options={}):
         self.dist = dist
         self.base = base
         self.src = os.path.join(self.base, 'src')
@@ -52,12 +52,19 @@ class Builder:
             config = file.read()
             file.close()
             config = yaml.load(config)
-            return config
+            if config is None:
+                return {}
+            else:
+                return config
         except FileNotFoundError:
             return None
 
     def interpret(self):
         self.config = self.read_config(self.base, 'config')
+        if self.config is None:
+            self.config = {}
+        if 'path' not in self.config:
+            self.config['path'] = '/'
         body_template = self.read_template(name='body')
 
         dirs = ['.']
