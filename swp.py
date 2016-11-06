@@ -1,13 +1,12 @@
 
 import click
 import build
-
-VERSION = '0.1'
+import config
 
 @click.command()
 @click.argument('source')
 @click.argument('dest')
-@click.version_option(version=VERSION)
+@click.version_option(version=config.VERSION)
 @click.option(
     '--discover-images/--no-discover-images', 
     default=True, 

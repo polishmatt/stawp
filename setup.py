@@ -1,10 +1,10 @@
 
 from setuptools import setup
-import swp
+import config
 
 setup(
     name='swp',
-    version=swp.VERSION,
+    version=config.VERSION,
     install_requires=[
         'Pillow==2.3.0',
         'pyaml==15.8.2',
