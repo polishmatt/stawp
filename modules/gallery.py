@@ -16,8 +16,9 @@ class Module(module.Module):
     def __init__(self, builder):
         for template in ['category', 'gallery', 'image']:
             self.templates[template] = builder.read_template(name=os.path.join('gallery', template))
+        self.templates['body'] = builder.read_template(name='body')
 
-    def interpret(self, page, builder, source_path, file_name, default, configPage, children, parents, index, bodyhtml):
+    def interpret(self, page, builder):
         if 'menu' in builder.config:
             builder.config['bottomMenu'] = builder.config['menu'][1]
             if self.rendered_galleries is None:
@@ -27,21 +28,21 @@ class Module(module.Module):
         else:
             builder.config['bottomMenu'] = []
 
-        if 'images' in page:
+        if 'images' in page.config:
             changed = False
             if builder.options['discover_images']:
-                for child in children:
+                for child in page.children:
                     try:
                         Image.open(os.path.join(builder.src, child))
                         child = child.split('/')
                         child = child[len(child)-1]
                         dupe = False
-                        for image in page['images']:
+                        for image in page.config['images']:
                             if child == image or isinstance(image, dict) and child == list(image.keys())[0]:
                                 dupe = True
                         if not dupe:
-                            page['images'].append(child)
-                            default['images'].append(child)
+                            page.config['images'].append(child)
+                            page.raw_config['images'].append(child)
                             changed = True
                     except KeyboardInterrupt:
                         raise
@@ -49,35 +50,35 @@ class Module(module.Module):
                         pass
 
             imageHTML = ''
-            page['pageTitle'] = page['title']
+            page.config['pageTitle'] = page.config['title']
             if 'image_prefix' in builder.config:
                 base_prefix = builder.config['image_prefix']
-                out_prefix = base_prefix + page['dirName'] + '-'
+                out_prefix = base_prefix + page.config['dirName'] + '-'
             else:
                 base_prefix = None
                 out_prefix = ''
 
-            if page['body'] != '':
-                page['body'] = bodyhtml.replace('{{body}}', page['body'])
-            body = self.templates['gallery'].replace('{{title}}', page['pageTitle'])
-            body = body.replace('{{body}}', page['body'])
+            if page.config['body'] != '':
+                page.config['body'] = self.templates['body'].replace('{{body}}', page.config['body'])
+            body = self.templates['gallery'].replace('{{title}}', page.config['pageTitle'])
+            body = body.replace('{{body}}', page.config['body'])
 
-            if isinstance(page['images'][0], list):
+            if isinstance(page.config['images'][0], list):
                 images = []
-                for lists in page['images']:
+                for lists in page.config['images']:
                     images = images + lists
                     images.append({'n':None})
                 del images[-1]
-                page['images'] = images
+                page.config['images'] = images
 
-            for image in page['images']:
+            for image in page.config['images']:
                 ori = image
                 title = None
                 if isinstance(image, dict):
                     path = list(image.keys())[0]
                     if path == 'n':
                         imageHTML += '</div><div class="gallery">'
-                    elif '.' in path and 'isCategory' not in page:
+                    elif '.' in path and 'isCategory' not in page.config:
                         title = image[path]
                         image = path
                     else:
@@ -90,22 +91,22 @@ class Module(module.Module):
                                 out_prefix = ''
                                 image = base_prefix + ps[len(ps)-1] + '-' + image
                         else:
-                            categoryPath = file_name[2:] + '/' + path + '/'
+                            categoryPath = page.src_path[2:] + '/' + path + '/'
                             out_prefix = base_prefix + path + '-'
                         if image is not None and '/' in image and '.com' not in image:
                             image = image.split('/')
                             out_prefix = base_prefix + image[0] + '-'
                             image = image[1]
-                        body = self.templates['category'].replace('{{title}}', page['pageTitle'])
-                        body = body.replace('{{body}}', page['body'])
-                        page['isCategory'] = True
+                        body = self.templates['category'].replace('{{title}}', page.config['pageTitle'])
+                        body = body.replace('{{body}}', page.config['body'])
+                        page.config['isCategory'] = True
 
                         if '.' in path and '..' not in path:
                             attitle = ' '.join([s.capitalize() for s in path[22:-4].split('-')])
-                            alt = page['pageTitle'] + ' - ' + attitle
+                            alt = page.config['pageTitle'] + ' - ' + attitle
                             icfg = {
                                 'href': 'https://'+image,
-                                'src': builder.config['path']+file_name[2:]+'/'+path,
+                                'src': builder.config['path']+page.src_path[2:]+'/'+path,
                                 'alt': alt,
                                 'title': attitle,
                             }
@@ -119,7 +120,7 @@ class Module(module.Module):
                             file.close()
                             cfg = yaml.load(cfg)
                             attitle = cfg['title']
-                            alt = page['pageTitle'] + ' - ' + attitle
+                            alt = page.config['pageTitle'] + ' - ' + attitle
                             icfg = {
                                 'href': builder.config['path']+categoryPath,
                                 'src': builder.config['path']+categoryPath+'thumb-'+out_prefix+image,
@@ -130,23 +131,23 @@ class Module(module.Module):
                             for key in icfg:
                                 ichtml = ichtml.replace('{{%s}}' % key, icfg[key])
                             imageHTML += ichtml
-                        page['categoryTitle'] = ''
+                        page.config['categoryTitle'] = ''
                 else:
                     name = image.split('.')[0]
-                    cat = file_name.split('/')[-2]
+                    cat = page.src_path.split('/')[-2]
                     if name.isdigit() and cat != 'collaborations':
-                        title = page['title'] + ' #' + name
-                if 'isCategory' not in page:
-                    if not builder.options['remove_images'] or os.path.isfile(os.path.join(source_path, image)) and default['images'].count(image) < 2:
-                        if parents[file_name] == index:
+                        title = page.config['title'] + ' #' + name
+                if 'isCategory' not in page.config:
+                    if not builder.options['remove_images'] or os.path.isfile(os.path.join(page.full_path, image)) and page.raw_config['images'].count(image) < 2:
+                        if page.parent.is_index:
                             alt = ''
                         else:
-                            alt = parents[file_name]['pageTitle']
+                            alt = page.parent.config['pageTitle']
                         alt += ' - '
                         if title is not None:
                             alt += title
                         else:
-                            alt += page['title']
+                            alt += page.config['title']
                             title = ''
                         icfg = {
                             'href': out_prefix+image,
@@ -158,54 +159,53 @@ class Module(module.Module):
                         for key in icfg:
                             ichtml = ichtml.replace('{{%s}}' % key, icfg[key])
                         imageHTML += ichtml
-                        if parents[file_name] != index:
-                            page['categoryTitle'] = ''
-                            # parents[file_name]['pageTitle']
-                        if 'childDescription' in parents[file_name]:
-                            page['description'] = parents[file_name]['childDescription'].replace('{{title}}', page['title'])
-                        page['isGallery'] = True
+                        if not page.parent.is_index:
+                            page.config['categoryTitle'] = ''
+                        if 'childDescription' in page.parent.config:
+                            page.config['description'] = page.parent.config['childDescription'].replace('{{title}}', page.config['title'])
+                        page.config['isGallery'] = True
                     else:
-                        click.echo('Removed ' + os.path.join(source_path, image))
-                        default['images'].remove(ori)
+                        click.echo('Removed ' + os.path.join(page.full_path, image))
+                        page.raw_config['images'].remove(ori)
                         changed = True
 
-            page['images'] = default['images']
+            page.config['images'] = page.raw_config['images']
             if changed:
-                file = open(source_path + '/index.yaml', 'w')
-                file.write(yaml.dump(default))
+                file = open(page.full_path + '/index.yaml', 'w')
+                file.write(yaml.dump(page.raw_config))
                 file.close()
             
             body = body.replace('{{images}}', imageHTML)
-            page['body'] = body
-            if 'isCategory' in page and page['isCategory'] and configPage in builder.config['bottomMenu']:
-                self.rendered_galleries[configPage] = page['body']
+            page.config['body'] = body
+            if 'isCategory' in page.config and page.config['isCategory'] and page.web_path in builder.config['bottomMenu']:
+                self.rendered_galleries[page.web_path] = page.config['body']
             else:
-                if page['categoryTitle'] != '':
-                    page['title'] = page['categoryTitle'] + ' - ' + page['title']
+                if page.config['categoryTitle'] != '':
+                    page.config['title'] = page.config['categoryTitle'] + ' - ' + page.config['title']
         else:
-            page['pageTitle'] = ''
-            page['categoryTitle'] = ''
+            page.config['pageTitle'] = ''
+            page.config['categoryTitle'] = ''
 
-    def render_page(self, page, builder, newPath):
+    def render_page(self, page, builder):
         if self.rendered_gallery is None:
             self.rendered_gallery = ''.join(self.rendered_galleries[path] for path in builder.config['bottomMenu'])
 
-        page['body'] = page['body'].replace('{{gallery}}', self.rendered_gallery)
+        page.config['body'] = page.config['body'].replace('{{gallery}}', self.rendered_gallery)
 
-        if 'isGallery' in page:
-            for imageFile in page['images']:
+        if 'isGallery' in page.config:
+            for imageFile in page.config['images']:
                 if isinstance(imageFile, dict):
                     imageFile = list(imageFile.keys())[0]
-                file = os.path.join(newPath, imageFile)
+                file = os.path.join(page.dist_path, imageFile)
                 if 'image_prefix' in builder.config:
-                    outName = builder.config['image_prefix'] + page['dirName'] + '-'+ imageFile
+                    outName = builder.config['image_prefix'] + page.config['dirName'] + '-'+ imageFile
                 else:
                     outName = imageFile
                 try:
                     image = Image.open(file)
                     image.thumbnail((500, 200), Image.ANTIALIAS)
-                    image.save(os.path.join(newPath, 'thumb-' + outName), "JPEG")
-                    os.rename(file, os.path.join(newPath, outName))
+                    image.save(os.path.join(page.dist_path, 'thumb-' + outName), "JPEG")
+                    os.rename(file, os.path.join(page.dist_path, outName))
                 except KeyboardInterrupt:
                     raise
                 except:

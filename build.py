@@ -2,8 +2,8 @@
 import os
 import yaml
 import imp
-import copy
 import distutils.dir_util
+import page_container
 
 class Builder:
 
@@ -59,55 +59,51 @@ class Builder:
         except FileNotFoundError:
             return None
 
+    def interpolate(self, string, values):
+        pass
+
     def interpret(self):
         self.config = self.read_config(self.base, 'config')
         if self.config is None:
             self.config = {}
         if 'path' not in self.config:
             self.config['path'] = '/'
-        body_template = self.read_template(name='body')
 
         dirs = ['.']
         self.pages = []
-        index = None
         topLevel = []
-        parents = {}
+        parents = {
+            '.': None,
+        }
 
         while dirs:
             nextDirs = []
-            for fileName in dirs:
-                if os.path.isdir(os.path.join(self.src, fileName)):
-                    sourcePath = os.path.join(self.src, fileName)
-                    children = [fileName + '/' + item for item in os.listdir(sourcePath)]
-                    nextDirs.extend(children)
+            for name in dirs:
+                if os.path.isdir(os.path.join(self.src, name)):
+                    page = page_container.Page(src=self.src, path=name, builder=self, parent=parents[name])
+                    nextDirs.extend(page.children)
 
-                    page = self.read_config(sourcePath)
-                    if page is None:
+                    if page.config is None:
                         continue
-                    default = copy.copy(page)
 
-                    page['body'] = self.read_template(path=sourcePath)
+                    page.config['body'] = self.read_template(path=page.full_path)
+                    page.config['file'] = name
+                    dirName = name.split('/')
+                    page.config['dirName'] = dirName[len(dirName)-1]
+                    page.config['path'] = self.config['path'] + name[2:]
 
-                    page['file'] = fileName
-                    dirName = fileName.split('/')
-                    page['dirName'] = dirName[len(dirName)-1]
-                    page['path'] = self.config['path'] + fileName[2:]
-                    if fileName == '.':
-                        index = page
-                    else:
-                        page['path'] += '/'
-                    if fileName == '.' or fileName.rfind('/') == 1:
+                    if not page.is_index:
+                        page.config['path'] += '/'
+                    if name == '.' or name.rfind('/') == 1:
                         topLevel.append(page)
 
-                    configPage = page['file'][1:] + '/'
 
-                    page['header'] = ''
-                    page['categoryTitle'] = ''
+                    page.config['header'] = ''
+                    page.config['categoryTitle'] = ''
 
                     for module in self.modules:
-                        module.interpret(page, self, sourcePath, fileName, default, configPage, children, parents, index, body_template)
-
-                    for child in children:
+                        module.interpret(page=page, builder=self)
+                    for child in page.children:
                         parents[child] = page
                     self.pages.append(page)
 
@@ -117,32 +113,31 @@ class Builder:
         template = self.read_template()
 
         for module in self.modules:
-            module.render(self)
+            module.render(builder=self)
 
         for key in self.config:
             template = template.replace('{{%s}}' % key, str(self.config[key]))
 
         for page in self.pages:
-            newPath = os.path.join(self.dist, page['file'])
             try:
-                os.remove(newPath + '/index.yaml')
+                os.remove(os.path.join(page.dist_path, 'index.yaml'))
             except FileNotFoundError:
                 pass
             output = template
 
             for module in self.modules:
-                module.render_page(page=page, builder=self, newPath=newPath)
+                module.render_page(page=page, builder=self)
 
-            if 'description' in page:
-                page['description'] = ' ' + page['description']
+            if 'description' in page.config:
+                page.config['description'] = ' ' + page.config['description']
             else:
-                page['description'] = ''
+                page.config['description'] = ''
 
-            page['pagePath'] = page['path']
-            for key in page:
-                output = output.replace('{{%s}}' % key, str(page[key]))
+            page.config['pagePath'] = page.config['path']
+            for key in page.config:
+                output = output.replace('{{%s}}' % key, str(page.config[key]))
 
-            file = open(newPath + '/index.html', 'w')
+            file = open(os.path.join(page.dist_path, 'index.html'), 'w')
             file.write(output)
             file.close()
 

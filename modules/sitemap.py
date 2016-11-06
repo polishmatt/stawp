@@ -13,12 +13,12 @@ class Module(module.Module):
             'priority': '0.8',
         }]
 
-    def interpret(self, page, builder, source_path, file_name, default, configPage, children, parents, index, bodyhtml):
+    def interpret(self, page, builder):
         mapurl = {
-            'url': 'images/' + file_name[2:] + '/',
+            'url': 'images/' + page.src_path[2:] + '/',
             'priority': '0.5',
         }
-        if file_name.count('/') == 1:
+        if page.src_path.count('/') == 1:
             mapurl['priority'] = '0.7'
 
         if mapurl['url'] != 'images//' and mapurl['url'] != 'images/not-found/' and mapurl['url'] != 'images/removed/':
