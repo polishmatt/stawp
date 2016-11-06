@@ -45,6 +45,8 @@ class Module(module.Module):
                             page['images'].append(child)
                             default['images'].append(child)
                             changed = True
+                    except KeyboardInterrupt:
+                        raise
                     except:
                         pass
 
@@ -198,6 +200,8 @@ class Module(module.Module):
                     image.thumbnail((500, 200), Image.ANTIALIAS)
                     image.save(os.path.join(newPath, 'thumb-' + outName), "JPEG")
                     os.rename(file, os.path.join(newPath, outName))
+                except KeyboardInterrupt:
+                    raise
                 except:
                     print("Failed thumbnail %s: %s" % (file, sys.exc_info()[0]))
 

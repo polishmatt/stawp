@@ -8,7 +8,10 @@ if dist is None or dist == "":
     sys.exit(0)
 base = sys.argv[1]
 
-builder = build.Builder(dist=dist, base=base)
-builder.interpret()
-builder.render()
+try:
+    builder = build.Builder(dist=dist, base=base)
+    builder.interpret()
+    builder.render()
+except KeyboardInterrupt:
+    print('stopping...')
 
