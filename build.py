@@ -59,8 +59,14 @@ class Builder:
         except FileNotFoundError:
             return None
 
-    def interpolate(self, string, values):
-        pass
+    def interpolate(self, template, values):
+        if hasattr(values, 'iteritems'):
+            iterator = values.iteritems()
+        else:
+            iterator = values.items()
+        for key, value in iterator:
+            template = template.replace('{{%s}}' % key, str(value))
+        return template
 
     def interpret(self):
         self.config = self.read_config(self.base, 'config')
@@ -110,22 +116,18 @@ class Builder:
         for module in self.modules:
             module.render(builder=self)
 
-        for key in self.config:
-            template = template.replace('{{%s}}' % key, str(self.config[key]))
+        template = self.interpolate(template, self.config)
 
         for page in self.pages:
             try:
                 os.remove(os.path.join(page.dist_path, 'index.yaml'))
             except FileNotFoundError:
                 pass
-            output = template
 
             for module in self.modules:
                 module.render_page(page=page, builder=self)
 
-            for key in page.config:
-                output = output.replace('{{%s}}' % key, str(page.config[key]))
-
+            output = self.interpolate(template, page.config)
             file = open(os.path.join(page.dist_path, 'index.html'), 'w')
             file.write(output)
             file.close()

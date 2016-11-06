@@ -61,9 +61,13 @@ class Module(module.Module):
                 out_prefix = ''
 
             if page.config['body'] != '':
-                page.config['body'] = self.templates['body'].replace('{{body}}', page.config['body'])
-            body = self.templates['gallery'].replace('{{title}}', page.config['pageTitle'])
-            body = body.replace('{{body}}', page.config['body'])
+                page.config['body'] = builder.interpolate(self.templates['body'], {
+                    'body': page.config['body'],
+                })
+            body = builder.interpolate(self.templates['gallery'], {
+                'title': page.config['pageTitle'],
+                'body': page.config['body'],
+            })
 
             if isinstance(page.config['images'][0], list):
                 images = []
@@ -99,8 +103,10 @@ class Module(module.Module):
                             image = image.split('/')
                             out_prefix = base_prefix + image[0] + '-'
                             image = image[1]
-                        body = self.templates['category'].replace('{{title}}', page.config['pageTitle'])
-                        body = body.replace('{{body}}', page.config['body'])
+                        body = builder.interpolate(self.templates['category'], {
+                            'title': page.config['pageTitle'],
+                            'body': page.config['body'],
+                        })
                         page.config['isCategory'] = True
 
                         if '.' in path and '..' not in path:
@@ -112,10 +118,7 @@ class Module(module.Module):
                                 'alt': alt,
                                 'title': attitle,
                             }
-                            ichtml = self.templates['image']
-                            for key in icfg:
-                                ichtml = ichtml.replace('{{%s}}' % key, icfg[key])
-                            imageHTML += ichtml
+                            imageHTML += builder.interpolate(self.templates['image'], icfg)
                         else:
                             file = open(builder.src+'/' + categoryPath+'index.yaml', 'r')
                             cfg = file.read()
@@ -129,10 +132,7 @@ class Module(module.Module):
                                 'alt': alt,
                                 'title': attitle,
                             }
-                            ichtml = self.templates['image']
-                            for key in icfg:
-                                ichtml = ichtml.replace('{{%s}}' % key, icfg[key])
-                            imageHTML += ichtml
+                            imageHTML += builder.interpolate(self.templates['image'], icfg)
                         page.config['categoryTitle'] = ''
                 else:
                     name = image.split('.')[0]
@@ -157,14 +157,13 @@ class Module(module.Module):
                             'alt': alt,
                             'title': title,
                         }
-                        ichtml = self.templates['image'] 
-                        for key in icfg:
-                            ichtml = ichtml.replace('{{%s}}' % key, icfg[key])
-                        imageHTML += ichtml
+                        imageHTML += builder.interpolate(self.templates['image'], icfg)
                         if not page.parent.is_index:
                             page.config['categoryTitle'] = ''
                         if 'childDescription' in page.parent.config:
-                            page.config['description'] = page.parent.config['childDescription'].replace('{{title}}', page.config['title'])
+                            page.config['description'] = builder.interpolate(page.parent.config['childDescription'], {
+                                'title': page.config['title'],
+                            })
                         page.config['isGallery'] = True
                     else:
                         click.echo('Removed ' + os.path.join(page.full_path, image))
@@ -177,7 +176,9 @@ class Module(module.Module):
                 file.write(yaml.dump(page.raw_config))
                 file.close()
             
-            body = body.replace('{{images}}', imageHTML)
+            body = builder.interpolate(body, {
+                'images': imageHTML,
+            })
             page.config['body'] = body
             if 'isCategory' in page.config and page.config['isCategory'] and page.web_path in builder.config['bottomMenu']:
                 self.rendered_galleries[page.web_path] = page.config['body']
@@ -192,7 +193,9 @@ class Module(module.Module):
         if self.rendered_gallery is None:
             self.rendered_gallery = ''.join(self.rendered_galleries[path] for path in builder.config['bottomMenu'])
 
-        page.config['body'] = page.config['body'].replace('{{gallery}}', self.rendered_gallery)
+        page.config['body'] = builder.interpolate(page.config['body'], {
+            'gallery': self.rendered_gallery,
+        })
 
         if 'isGallery' in page.config:
             for imageFile in page.config['images']:

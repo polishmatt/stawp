@@ -3,11 +3,15 @@ import module
 
 class Module(module.Module):
 
+    menu_pages = None
+    menu_html = None
+
     def interpret(self, page, builder):
         if 'menu' in builder.config:
-            self.menu_pages = []
-            for menu in builder.config['menu']:
-                self.menu_pages.append({})
+            if self.menu_pages is None:
+                self.menu_pages = []
+                for menu in builder.config['menu']:
+                    self.menu_pages.append({})
 
             if 'menuTitle' not in page.config:
                 page.config['menuTitle'] = page.config['title']
@@ -18,15 +22,13 @@ class Module(module.Module):
 
     def render(self, builder):
         if 'menu' in builder.config:
-            menu_html = builder.read_template('menu')
+            if self.menu_html is None:
+                self.menu_html = builder.read_template(name='menu')
 
             for index, menu in enumerate(builder.config['menu']):
                 builder.config['menu[%d]' % index] = ''
                 for path in menu:
                     if path in self.menu_pages[index]:
                         page = self.menu_pages[index][path]
-                        page_html = menu_html
-                        for key, value in enumerate(page.config):
-                            page_html = page_html.replace('{{%s}}' % key, str(value))
-                        builder.config['menu[%d]' % index] += page_html
+                        builder.config['menu[%d]' % index] += builder.interpolate(self.menu_html, page.config)
 
