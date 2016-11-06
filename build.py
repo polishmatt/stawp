@@ -56,9 +56,6 @@ class Builder:
 
     def interpret(self):
         self.config = self.read_config(self.base, 'config')
-        self.config['css'] = 1
-        self.config['js'] = 1
-
         body_template = self.read_template(name='body')
 
         dirs = ['.']

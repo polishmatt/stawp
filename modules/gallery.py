@@ -52,7 +52,12 @@ class Module(module.Module):
 
             imageHTML = ''
             page['pageTitle'] = page['title']
-            outPrefix = 'matt-wisniewski-' + page['dirName'] + '-'
+            if 'image_prefix' in builder.config:
+                base_prefix = builder.config['image_prefix']
+                out_prefix = base_prefix + page['dirName'] + '-'
+            else:
+                base_prefix = None
+                out_prefix = ''
 
             if page['body'] != '':
                 page['body'] = bodyhtml.replace('{{body}}', page['body'])
@@ -81,17 +86,17 @@ class Module(module.Module):
                         image = image[path]
                         if '/'in path or image is not None and '/' in image and '.com' not in image:
                             categoryPath = path + '/'
-                            outPrefix = ''
+                            out_prefix = ''
                             if '/' in path:
                                 ps = path.split('/')
-                                outPrefix = ''
-                                image = 'matt-wisniewski-' + ps[len(ps)-1] + '-' + image
+                                out_prefix = ''
+                                image = base_prefix + ps[len(ps)-1] + '-' + image
                         else:
                             categoryPath = file_name[2:] + '/' + path + '/'
-                            outPrefix = 'matt-wisniewski-'+ path + '-'
+                            out_prefix = base_prefix + path + '-'
                         if image is not None and '/' in image and '.com' not in image:
                             image = image.split('/')
-                            outPrefix = 'matt-wisniewski-'+ image[0] + '-'
+                            out_prefix = base_prefix + image[0] + '-'
                             image = image[1]
                         body = self.templates['category'].replace('{{title}}', page['pageTitle'])
                         body = body.replace('{{body}}', page['body'])
@@ -119,7 +124,7 @@ class Module(module.Module):
                             alt = page['pageTitle'] + ' - ' + attitle
                             icfg = {
                                 'href': builder.config['path']+categoryPath,
-                                'src': builder.config['path']+categoryPath+'thumb-'+outPrefix+image,
+                                'src': builder.config['path']+categoryPath+'thumb-'+out_prefix+image,
                                 'alt': alt,
                                 'title': attitle,
                             }
@@ -146,8 +151,8 @@ class Module(module.Module):
                             alt += page['title']
                             title = ''
                         icfg = {
-                            'href': outPrefix+image,
-                            'src': 'thumb-'+outPrefix+image,
+                            'href': out_prefix+image,
+                            'src': 'thumb-'+out_prefix+image,
                             'alt': alt,
                             'title': title,
                         }
@@ -194,7 +199,10 @@ class Module(module.Module):
                 if isinstance(imageFile, dict):
                     imageFile = list(imageFile.keys())[0]
                 file = os.path.join(newPath, imageFile)
-                outName = 'matt-wisniewski-' + page['dirName'] + '-'+ imageFile
+                if 'image_prefix' in builder.config:
+                    outName = builder.config['image_prefix'] + page['dirName'] + '-'+ imageFile
+                else:
+                    outName = imageFile
                 try:
                     image = Image.open(file)
                     image.thumbnail((500, 200), Image.ANTIALIAS)
