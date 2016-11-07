@@ -1,5 +1,6 @@
 
 import os
+import shutil
 import yaml
 import imp
 import click
@@ -25,6 +26,12 @@ class Builder:
         self.templates = os.path.join(self.base, 'html')
         self.options = options
 
+        for path in os.listdir(self.dist):
+            path = os.path.join(self.dist, path)
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+            else:
+                os.remove(path)
         distutils.dir_util.copy_tree(self.src, self.dist)
 
         self.modules = []
