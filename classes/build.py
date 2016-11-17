@@ -26,12 +26,15 @@ class Builder:
         self.templates = os.path.join(self.base, 'html')
         self.options = options
 
-        for path in os.listdir(self.dist):
-            path = os.path.join(self.dist, path)
-            if os.path.isdir(path):
-                shutil.rmtree(path)
-            else:
-                os.remove(path)
+        try:
+            for path in os.listdir(self.dist):
+                path = os.path.join(self.dist, path)
+                if os.path.isdir(path):
+                    shutil.rmtree(path)
+                else:
+                    os.remove(path)
+        except FileNotFoundError:
+            pass
         distutils.dir_util.copy_tree(self.src, self.dist)
 
         self.modules = []
