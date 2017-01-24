@@ -1,4 +1,4 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 import importlib
 
 config = importlib.import_module('stawp.config')
@@ -11,7 +11,10 @@ setup(
     author_email='stawp@mattw.us',
     license='MIT',
     url='https://github.com/polishmatt/stawp',
-    packages=find_packages(),
+    packages=[
+        'stawp',
+        'stawp.modules',
+    ],
     keywords=['static', 'website'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
