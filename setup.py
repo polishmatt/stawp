@@ -12,7 +12,13 @@ setup(
     license='MIT',
     url='https://github.com/polishmatt/stawp',
     keywords=['static', 'website'],
-    classifiers=[],
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 2.7',
+    ],
     packages=[
         'stawp'
     ],
