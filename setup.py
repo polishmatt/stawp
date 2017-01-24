@@ -6,6 +6,16 @@ config = importlib.import_module('stawp.config')
 setup(
     name='stawp',
     version=config.version,
+    description='STAtic Website Producer',
+    author='Matt Wisniewski',
+    author_email='stawp@mattw.us',
+    license='MIT',
+    url='https://github.com/polishmatt/stawp',
+    keywords=['static', 'website'],
+    classifiers=[],
+    packages=[
+        'stawp'
+    ],
     install_requires=[
         'Pillow==2.3.0',
         'pyaml==15.8.2',
