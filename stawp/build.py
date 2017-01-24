@@ -33,7 +33,7 @@ class Builder:
                     shutil.rmtree(path)
                 else:
                     os.remove(path)
-        except IOError:
+        except (OSError, IOError):
             pass
         distutils.dir_util.copy_tree(self.src, self.dist)
 
@@ -58,7 +58,7 @@ class Builder:
             with open(os.path.join(path, name + '.html'), 'r') as file:
                 template = file.read()
             return template
-        except IOError:
+        except (OSError, IOError):
             return ''
 
     def read_config(self, path, name='index'):
@@ -70,7 +70,7 @@ class Builder:
                 return {}
             else:
                 return config
-        except IOError:
+        except (OSError, IOError):
             return None
 
     def interpolate(self, template, values):
@@ -79,7 +79,7 @@ class Builder:
         else:
             iterator = values.items()
         for key, value in iterator:
-            template = template.replace('{{%s}}' % key, str(value))
+            template = template.replace('{{%s}}' % key, unicode(value))
         return template
 
     def echo(self, message, verbose=False, error=False):
@@ -141,7 +141,7 @@ class Builder:
         for page in self.pages:
             try:
                 os.remove(os.path.join(page.dist_path, 'index.yaml'))
-            except IOError:
+            except (OSError, IOError):
                 pass
 
             for module in self.modules:
@@ -149,6 +149,7 @@ class Builder:
 
             output = self.interpolate(template, page.config)
             with open(os.path.join(page.dist_path, 'index.html'), 'w') as file:
+                output = output.encode('utf-8')
                 file.write(output)
         self.echo('done', verbose=True)
 
