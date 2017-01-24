@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 import collections
-from module import Module
+from stawp.module import Module
 
 class Module(Module):
 

@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 import importlib
 
 config = importlib.import_module('stawp.config')
@@ -11,6 +11,7 @@ setup(
     author_email='stawp@mattw.us',
     license='MIT',
     url='https://github.com/polishmatt/stawp',
+    packages=find_packages(),
     keywords=['static', 'website'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -18,9 +19,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
-    ],
-    packages=[
-        'stawp'
     ],
     install_requires=[
         'Pillow==2.3.0',

@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from module import Module
+from stawp.module import Module
 
 class Module(Module):
 

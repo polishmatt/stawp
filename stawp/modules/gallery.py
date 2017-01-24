@@ -3,7 +3,7 @@ import os
 import sys
 import yaml
 from PIL import Image
-from module import Module
+from stawp.module import Module
 
 class Module(Module):
 
