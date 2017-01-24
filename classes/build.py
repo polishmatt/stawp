@@ -33,7 +33,7 @@ class Builder:
                     shutil.rmtree(path)
                 else:
                     os.remove(path)
-        except FileNotFoundError:
+        except IOError:
             pass
         distutils.dir_util.copy_tree(self.src, self.dist)
 
@@ -59,7 +59,7 @@ class Builder:
             template = file.read()
             file.close()
             return template
-        except FileNotFoundError:
+        except IOError:
             return ''
 
     def read_config(self, path, name='index'):
@@ -72,7 +72,7 @@ class Builder:
                 return {}
             else:
                 return config
-        except FileNotFoundError:
+        except IOError:
             return None
 
     def interpolate(self, template, values):
@@ -143,7 +143,7 @@ class Builder:
         for page in self.pages:
             try:
                 os.remove(os.path.join(page.dist_path, 'index.yaml'))
-            except FileNotFoundError:
+            except IOError:
                 pass
 
             for module in self.modules:
