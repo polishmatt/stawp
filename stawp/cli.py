@@ -1,11 +1,11 @@
 
 import click
 import config
-import classes.build
-import classes.move
+from build import Builder
+from move import Mover
 
 @click.group()
-@click.version_option(version=config.VERSION)
+@click.version_option(version=config.version)
 def cli():
     pass
 
@@ -37,7 +37,7 @@ def cli():
 )
 def build(source, dest, **kwargs):
     try:
-        builder = classes.build.Builder(dist=dest, base=source, options=kwargs)
+        builder = Builder(dist=dest, base=source, options=kwargs)
         builder.interpret()
         builder.render()
     except KeyboardInterrupt:
@@ -47,7 +47,7 @@ def build(source, dest, **kwargs):
 @click.argument('image')
 @click.argument('to', required=False)
 def mvi(image, to):
-    mover = classes.move.Mover(path='.')
+    mover = Mover(path='.')
     mover.move(image=image, to=to)
 
 if __name__ == '__main__':

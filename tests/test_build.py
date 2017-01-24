@@ -1,14 +1,14 @@
 
 import unittest
 import filecmp
-import classes.build
+from stawp.build import Builder
 
 class TestBuild(unittest.TestCase):
 
     def build_fixture(self, name, description):
         dest='/tmp/swp'
         source='tests/fixtures/%s/src' % name
-        builder = classes.build.Builder(dist=dest, base=source)
+        builder = Builder(dist=dest, base=source)
         builder.interpret()
         builder.render()
         cmp = filecmp.dircmp(dest, 'tests/fixtures/%s/dest' % name)

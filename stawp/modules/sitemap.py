@@ -1,8 +1,8 @@
 
 import collections
-import classes.module
+from module import Module
 
-class Module(classes.module.Module):
+class Module(Module):
 
     sitemap = None
     

@@ -5,7 +5,7 @@ import yaml
 import imp
 import click
 import distutils.dir_util
-import classes.page
+from page import Page
 
 class Builder:
 
@@ -42,12 +42,12 @@ class Builder:
         # all are disabled by default so this is just a placeholder for potential future behavior
         disabled = options.get('disable_modules', '').split(',')
 
-        modules_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'modules')
+        modules_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'modules')
         for module_file in os.listdir(modules_path):
             if module_file[:-3] in enabled:
                 module_path = os.path.join(modules_path, module_file)
                 if os.path.isfile(module_path):
-                    module = imp.load_source('swp_module_' + module_file, module_path)
+                    module = imp.load_source('stawp_module_' + module_file, module_path)
                     module = module.Module(self)
                     self.modules.append(module)
 
@@ -104,7 +104,7 @@ class Builder:
             next_dirs = []
             for path in dirs:
                 if os.path.isdir(os.path.join(self.src, path)):
-                    page = classes.page.Page(src=self.src, path=path, builder=self, parent=parents[path])
+                    page = Page(src=self.src, path=path, builder=self, parent=parents[path])
                     next_dirs.extend(page.children)
 
                     if page.config is None:
