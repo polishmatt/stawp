@@ -14,9 +14,8 @@ class Mover:
 
     def move(self, image, to):
         config = os.path.join(self.path, 'index.yaml')
-        file = open(config, 'r')
-        page = file.read()
-        file.close()
+        with open(config, 'r') as file:
+            page = file.read()
         page = yaml.load(page)
         images = page['images']
 
@@ -36,9 +35,8 @@ class Mover:
         click.echo(page['images'])
 
         page = yaml.dump(page)
-        file = open(config, 'w')
-        file.write(page)
-        file.close()
+        with open(config, 'w') as file:
+            file.write(page)
 
     def separate_digits(self, string):
         return [ int(char) if char.isdigit() else char for char in re.split('(\d+)', string) ]

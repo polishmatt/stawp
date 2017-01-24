@@ -156,9 +156,8 @@ class Module(classes.module.Module):
 
             page.config['images'] = page.raw_config['images']
             if changed:
-                file = open(os.path.join(page.full_path, 'index.yaml'), 'w')
-                file.write(yaml.dump(page.raw_config))
-                file.close()
+                with open(os.path.join(page.full_path, 'index.yaml'), 'w') as file:
+                    file.write(yaml.dump(page.raw_config))
             
             if page.config['body'] != '':
                 page.config['body'] = builder.interpolate(self.templates['body'], {
@@ -204,5 +203,6 @@ class Module(classes.module.Module):
                 except KeyboardInterrupt:
                     raise
                 except:
+                    raise
                     builder.echo("Failed thumbnail %s: %s" % (file, sys.exc_info()[0]), error=True)
 

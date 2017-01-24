@@ -55,18 +55,16 @@ class Builder:
         if path is None:
             path = self.templates
         try:
-            file = open(os.path.join(path, name + '.html'), 'r')
-            template = file.read()
-            file.close()
+            with open(os.path.join(path, name + '.html'), 'r') as file:
+                template = file.read()
             return template
         except IOError:
             return ''
 
     def read_config(self, path, name='index'):
         try:
-            file = open(os.path.join(path, name + '.yaml'), 'r')
-            config = file.read()
-            file.close()
+            with open(os.path.join(path, name + '.yaml'), 'r') as file:
+                config = file.read()
             config = yaml.load(config)
             if config is None:
                 return {}
@@ -150,8 +148,7 @@ class Builder:
                 module.render_page(page=page, builder=self)
 
             output = self.interpolate(template, page.config)
-            file = open(os.path.join(page.dist_path, 'index.html'), 'w')
-            file.write(output)
-            file.close()
+            with open(os.path.join(page.dist_path, 'index.html'), 'w') as file:
+                file.write(output)
         self.echo('done', verbose=True)
 

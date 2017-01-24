@@ -42,7 +42,6 @@ class Module(classes.module.Module):
             sitemap += "\t\t<priority>"+str(url['priority'])+"</priority>\n"
             sitemap += "\t</url>\n"
         sitemap += '</urlset>'
-        file = open(builder.dist + '/../sitemap.xml', 'w')
-        file.write(sitemap)
-        file.close()
+        with open(builder.dist + '/../sitemap.xml', 'w') as file:
+            file.write(sitemap)
 
