@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import collections
+import os
 from stawp.module import Module
 
 class Module(Module):
@@ -42,6 +43,6 @@ class Module(Module):
             sitemap += "\t\t<priority>"+str(url['priority'])+"</priority>\n"
             sitemap += "\t</url>\n"
         sitemap += '</urlset>'
-        with open(builder.dist + '/../sitemap.xml', 'w') as file:
+        with open(os.path.join(builder.dist, 'sitemap.xml'), 'w') as file:
             file.write(sitemap)
 
