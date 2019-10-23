@@ -24,7 +24,7 @@ setup(
         'Programming Language :: Python :: 2.7',
     ],
     install_requires=[
-        'Pillow==2.3.0',
+        'Pillow==6.2.0',
         'pyaml==15.8.2',
         'click==6.6'
     ],
