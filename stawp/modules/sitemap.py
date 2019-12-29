@@ -1,7 +1,7 @@
-from __future__ import absolute_import
 import collections
 import os
 from stawp.module import Module
+
 
 class Module(Module):
 
@@ -45,4 +45,3 @@ class Module(Module):
         sitemap += '</urlset>'
         with open(os.path.join(builder.dist, 'sitemap.xml'), 'w') as file:
             file.write(sitemap)
-

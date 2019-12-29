@@ -1,9 +1,9 @@
-
 import re
 import os
 import sys
 import yaml
 import click
+
 
 class Mover:
 
@@ -40,4 +40,3 @@ class Mover:
 
     def separate_digits(self, string):
         return [ int(char) if char.isdigit() else char for char in re.split('(\d+)', string) ]
-

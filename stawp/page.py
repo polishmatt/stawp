@@ -1,6 +1,6 @@
-
 import os
 import copy
+
 
 class Page:
 
@@ -27,4 +27,3 @@ class Page:
         self.parent = parent
         self.config = builder.read_config(self.full_path)
         self.raw_config = copy.copy(self.config)
-

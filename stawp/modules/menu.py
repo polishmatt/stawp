@@ -1,5 +1,5 @@
-from __future__ import absolute_import
 from stawp.module import Module
+
 
 class Module(Module):
 
@@ -31,4 +31,3 @@ class Module(Module):
                     if path in self.menu_pages[index]:
                         page = self.menu_pages[index][path]
                         builder.config['menu[%d]' % index] += builder.interpolate(self.menu_html, page.config)
-

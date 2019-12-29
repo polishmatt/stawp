@@ -1,11 +1,12 @@
-
 import os
 import shutil
 import yaml
 import imp
 import click
 import distutils.dir_util
-from page import Page
+
+from .page import Page
+
 
 class Builder:
 
@@ -79,7 +80,7 @@ class Builder:
         else:
             iterator = values.items()
         for key, value in iterator:
-            template = template.replace('{{%s}}' % key, unicode(value))
+            template = template.replace('{{%s}}' % key, str(value))
         return template
 
     def echo(self, message, verbose=False, error=False):
@@ -149,7 +150,5 @@ class Builder:
 
             output = self.interpolate(template, page.config)
             with open(os.path.join(page.dist_path, 'index.html'), 'w') as file:
-                output = output.encode('utf-8')
                 file.write(output)
         self.echo('done', verbose=True)
-

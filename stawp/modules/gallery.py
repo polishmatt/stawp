@@ -1,9 +1,9 @@
-from __future__ import absolute_import
 import os
 import sys
 import yaml
 from PIL import Image
 from stawp.module import Module
+
 
 class Module(Module):
 
@@ -197,7 +197,13 @@ class Module(Module):
                     output_name = original_name
                 try:
                     image = Image.open(file)
+
+                    if image.mode in ('RGBA', 'LA'):
+                        background = Image.new(image.mode[:-1], image.size, 255)
+                        background.paste(image, image.split()[-1])
+                        image = background
                     image.thumbnail((500, 200), Image.ANTIALIAS)
+
                     image.save(os.path.join(page.dist_path, 'thumb-' + output_name), 'JPEG')
                     os.rename(file, os.path.join(page.dist_path, output_name))
                 except KeyboardInterrupt:
@@ -205,4 +211,3 @@ class Module(Module):
                 except:
                     raise
                     builder.echo("Failed thumbnail %s: %s" % (file, sys.exc_info()[0]), error=True)
-

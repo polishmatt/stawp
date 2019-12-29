@@ -1,13 +1,15 @@
-
 import click
-import config
-from build import Builder
-from move import Mover
+
+from .config import version
+from .build import Builder
+from .move import Mover
+
 
 @click.group()
-@click.version_option(version=config.version)
+@click.version_option(version=version)
 def cli():
     pass
+
 
 @cli.command()
 @click.argument('source')
@@ -43,6 +45,7 @@ def build(source, dest, **kwargs):
     except KeyboardInterrupt:
         click.echo('stopping...')
 
+
 @cli.command()
 @click.argument('image')
 @click.argument('to', required=False)
@@ -50,6 +53,6 @@ def mvi(image, to):
     mover = Mover(path='.')
     mover.move(image=image, to=to)
 
+
 if __name__ == '__main__':
     cli()
-

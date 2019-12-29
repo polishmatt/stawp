@@ -21,12 +21,12 @@ setup(
         'Environment :: Console',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.6',
     ],
     install_requires=[
-        'Pillow==2.3.0',
-        'pyaml==15.8.2',
-        'click==6.6'
+        'Pillow>=6.2.1,<6.999.999',
+        'pyaml>=19.12.0,<19.999.999',
+        'click>=6.6,<6.999.999'
     ],
     entry_points={
         'console_scripts': [
