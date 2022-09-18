@@ -20,11 +20,13 @@ class Builder:
     modules = None
     pages = None
 
-    def __init__(self, dist, base, options={}):
+    def __init__(self, dist, base, options=None):
         self.dist = dist
         self.base = base
         self.src = os.path.join(self.base, 'src')
         self.templates = os.path.join(self.base, 'html')
+        if options is None:
+            options = {}
         self.options = options
 
         try:
@@ -50,6 +52,7 @@ class Builder:
                 if os.path.isfile(module_path):
                     spec = importlib.util.spec_from_file_location('stawp_module_' + module_file, module_path)
                     module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
                     module = module.Module(self)
                     self.modules.append(module)
 
