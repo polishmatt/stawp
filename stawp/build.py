@@ -1,7 +1,7 @@
 import os
 import shutil
 import yaml
-import imp
+import importlib.util
 import click
 import distutils.dir_util
 
@@ -48,8 +48,8 @@ class Builder:
             if module_file[:-3] in enabled:
                 module_path = os.path.join(modules_path, module_file)
                 if os.path.isfile(module_path):
-                    module = imp.load_source('stawp_module_' + module_file, module_path)
-                    module = module.Module(self)
+                    spec = importlib.util.spec_from_file_location('stawp_module_' + module_file, module_path)
+                    module = importlib.util.module_from_spec(spec)
                     self.modules.append(module)
 
     def read_template(self, path=None, name='index'):
@@ -66,7 +66,7 @@ class Builder:
         try:
             with open(os.path.join(path, name + '.yaml'), 'r') as file:
                 config = file.read()
-            config = yaml.load(config)
+            config = yaml.safe_load(config)
             if config is None:
                 return {}
             else:
