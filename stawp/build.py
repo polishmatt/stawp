@@ -50,6 +50,7 @@ class Builder:
                 if os.path.isfile(module_path):
                     spec = importlib.util.spec_from_file_location('stawp_module_' + module_file, module_path)
                     module = importlib.util.module_from_spec(spec)
+                    module = module.Module(self)
                     self.modules.append(module)
 
     def read_template(self, path=None, name='index'):
