@@ -28,4 +28,4 @@ class TestBuild(unittest.TestCase):
         self.build_fixture('builder', 'default build behavior')
 
     def test_build_modules_enabled(self):
-        self.build_fixture('builder', 'modules enabled', {'enable_modules':'gallery,menu,sitemap'})
+        self.build_fixture('all-modules', 'modules enabled', {'enable_modules':'gallery,menu,sitemap'})
