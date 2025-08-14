@@ -1,12 +1,12 @@
 import click
 
-from .config import version
+from . import __version__
 from .build import Builder
 from .move import Mover
 
 
 @click.group()
-@click.version_option(version=version)
+@click.version_option(version=__version__)
 def cli():
     pass
 
