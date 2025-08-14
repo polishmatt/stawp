@@ -202,7 +202,7 @@ class Module(Module):
                         background = Image.new(image.mode[:-1], image.size, 255)
                         background.paste(image, image.split()[-1])
                         image = background
-                    image.thumbnail((500, 200), Image.ANTIALIAS)
+                    image.thumbnail((500, 200))
 
                     image.save(os.path.join(page.dist_path, 'thumb-' + output_name), 'JPEG')
                     os.rename(file, os.path.join(page.dist_path, output_name))

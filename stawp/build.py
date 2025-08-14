@@ -3,7 +3,7 @@ import shutil
 import yaml
 import importlib.util
 import click
-import distutils.dir_util
+import shutil
 
 from .page import Page
 
@@ -38,7 +38,7 @@ class Builder:
                     os.remove(path)
         except (OSError, IOError):
             pass
-        distutils.dir_util.copy_tree(self.src, self.dist)
+        shutil.copytree(self.src, self.dist, dirs_exist_ok=True)
 
         self.modules = []
         enabled = options.get('enable_modules', '').split(',')
